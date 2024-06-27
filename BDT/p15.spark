@@ -1,0 +1,26 @@
+import org.apache.spark.{SparkConf, SparkContext}
+
+object FoldVsAggregate {
+  def main(args: Array[String]): Unit = {
+    // Initialize Spark
+    val conf = new SparkConf().setAppName("FoldVsAggregate").setMaster("local[*]")
+    val sc = new SparkContext(conf)
+
+    // Create an RDD
+    val rdd = sc.parallelize(Array(1, 2, 3, 4, 5))
+
+    // Using fold() to add 100 to all items
+    val zeroValue = 100
+    val foldResult = rdd.fold(zeroValue)(_ + _)
+    println(s"Result using fold: $foldResult")
+
+    // Using aggregate() to add 100 to all items
+    val seqOp = (acc: Int, value: Int) => acc + value
+    val combOp = (acc1: Int, acc2: Int) => acc1 + acc2
+    val aggregateResult = rdd.aggregate(zeroValue)(seqOp, combOp)
+    println(s"Result using aggregate: $aggregateResult")
+
+    // Stop Spark
+    sc.stop()
+  }
+}
